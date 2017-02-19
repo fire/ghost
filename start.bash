@@ -36,8 +36,9 @@ if [[ -d "$OVERRIDE/$THEMES" ]]; then
 fi
 
 # Start Ghost
-chown -R ghost:ghost /data /ghost /ghost-override
-su ghost << EOF
-cd "$GHOST"
+chown -R ghost:nogroup /data /ghost /ghost-override
+sudo -u ghost -c /bin/bash -c \
+cd "$GHOST" && \
+git -C repo pull || git clone https://github.com/Hashable/so-clean.git "$THEMES/so-clean" && \
 NODE_ENV=${NODE_ENV:-production} npm start
 EOF

@@ -1,0 +1,50 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: ghost
+  namespace: ghost
+spec:
+  serviceName: "ghost"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ghost
+      annotations:      
+    spec:
+      containers:
+      - name: ghost
+        image: ifire/ghost
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: ghost
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 180
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 10
+        volumeMounts:
+        - name: configdir
+          mountPath: /ghost-override
+      # No pre-stop hook is required, a SIGTERM plus some time is all that's
+      # needed for graceful shutdown of a node.
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: configdir
+        persistentVolumeClaim:
+          claimName: configdir
+  volumeClaimTemplates:
+  - metadata:
+      name: configdir
+      annotations:
+        volume.alpha.kubernetes.io/storage-class: anything
+    spec:
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: 1Gi

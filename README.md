@@ -20,11 +20,11 @@ This repository contains **Dockerfile** of [Ghost](https://www.ghost.org/) for [
 
 ### Usage
 
-    docker run -d -p 80:2368 dockerfile/ghost
+    docker run -d -p 80:8008 dockerfile/ghost
 
 #### Customizing Ghost
 
-    docker run -d -p 80:2368 -v <override-dir>:/ghost-override dockerfile/ghost
+    docker run -d -p 80:8080 -v <override-dir>:/ghost-override dockerfile/ghost
 
 where `<override-dir>` is an absolute path of a directory that could contain:
 
@@ -34,3 +34,19 @@ where `<override-dir>` is an absolute path of a directory that could contain:
   - `content/themes/`: more themes
 
 After few seconds, open `http://<host>` for blog or `http://<host>/ghost` for admin page.
+
+#### Kubernetes
+
+```yaml
+git clone https://github.com/jetstack/kube-lego.git lego
+cd lego/examples/gce/
+# Namespace
+kubectl apply -f lego/00-namespace.yaml
+# ConfigMap
+kubectl apply -f lego/configmap.yaml
+# Deployment
+kubectl apply -f lego/deployment.yaml
+# Service is created by kube-lego in every used namespace
+cd ../../../ghost
+kubectl apply -f .
+```
